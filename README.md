@@ -1,6 +1,6 @@
 # Google Jobs Scraper API
 
-![thumbnail](https://i.imgur.com/yoWDkNx.jpg)
+![thumbnail](https://i.imgur.com/Zbnko1W.jpg)
 
 This is an API for scraping job postings from Google Jobs. Currently, the API has one endpoint:
 
