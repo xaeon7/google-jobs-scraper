@@ -49,7 +49,7 @@ export async function getJobList(
 ) {
   const browser = await puppeteer.launch({
     args: minimal_args,
-    userDataDir: "./.cache/path",
+    // userDataDir: "./.cache/path",
     headless: true,
     // executablePath:
     //   process.env.NODE_ENV === "production"
