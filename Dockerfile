@@ -12,13 +12,16 @@ RUN  apt-get update \
      && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
      && chmod +x /usr/sbin/wait-for-it.sh
 
-############
-## NodeJS ##
-############
 COPY package*.json .
+
 RUN npm install
 
+EXPOSE 5000
+
 COPY tsconfig.json .
+
 COPY . .
+
 RUN npm run build
+
 CMD ["node", "dist/index.js"]
