@@ -79,16 +79,16 @@ function extractJobsList() {
 
   const jobList: JobType[] = [];
   components.forEach((item) => {
-    const details = item.querySelectorAll(".sMzDkb");
+    // const details = item.querySelectorAll(".sMzDkb");
     const job = {
       id: item.dataset.encodedDocId || "",
       jobTitle: item.querySelector(".KLsYvd")?.innerHTML || "",
-      logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
-      companyName: details[0].textContent || "",
-      location: details[1].textContent || "",
-      extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
-        (e) => e.textContent || ""
-      ),
+      // logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
+      // companyName: details[0].textContent || "",
+      // location: details[1].textContent || "",
+      // extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
+      // (e) => e.textContent || ""
+      // ),
     };
 
     jobList.push(job);
@@ -101,7 +101,7 @@ type JobType = {
   id: string;
   jobTitle: string;
   logo?: string;
-  companyName: string;
-  location: string;
-  extensions: string[];
+  companyName?: string;
+  location?: string;
+  extensions?: string[];
 };
