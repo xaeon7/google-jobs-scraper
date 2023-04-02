@@ -65,17 +65,17 @@ export async function getJobList(
 
   const title = await page.title();
 
-  // const jobList = await scrapeInfiniteScrollItems(
-  //   page,
-  //   extractJobsList,
-  //   GOOGLE_SELECTORS.scrollableItem,
-  //   resultsCount
-  // );
+  const jobList = await scrapeInfiniteScrollItems(
+    page,
+    extractJobsList,
+    GOOGLE_SELECTORS.scrollableItem,
+    resultsCount
+  );
 
   console.log(page);
 
   await browser.close();
-  return [url, title, page];
+  return [jobList, url, title, page];
 }
 
 function extractJobsList() {
