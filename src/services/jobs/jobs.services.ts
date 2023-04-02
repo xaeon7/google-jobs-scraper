@@ -63,38 +63,50 @@ export async function getJobList(
   await page.setUserAgent(config.get<string>("ua"));
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  const jobList = await scrapeInfiniteScrollItems(
-    page,
-    extractJobsList,
-    GOOGLE_SELECTORS.scrollableItem,
-    resultsCount
-  );
+  const jobList = await page.evaluate(extractJobsList);
+
+  // const jobList = await scrapeInfiniteScrollItems(
+  //   page,
+  //   extractJobsList,
+  //   GOOGLE_SELECTORS.scrollableItem,
+  //   resultsCount
+  // );
 
   await browser.close();
   return [jobList, url];
 }
 
 function extractJobsList() {
-  const components = document.querySelectorAll<HTMLElement>(".KGjGe");
+  const components = document.querySelector<HTMLElement>(".KGjGe");
+  const job = {
+    id: components.dataset.encodedDocId || "",
+    // jobTitle: components.querySelector(".KLsYvd")?.innerHTML || "",
+    // logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
+    // companyName: details[0].textContent || "",
+    // location: details[1].textContent || "",
+    // extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
+    // (e) => e.textContent || ""
+    // ),
+  };
 
-  const jobList: JobType[] = [];
-  components.forEach((item) => {
-    // const details = item.querySelectorAll(".sMzDkb");
-    const job = {
-      id: item.dataset.encodedDocId || "",
-      jobTitle: item.querySelector(".KLsYvd")?.innerHTML || "",
-      // logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
-      // companyName: details[0].textContent || "",
-      // location: details[1].textContent || "",
-      // extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
-      // (e) => e.textContent || ""
-      // ),
-    };
+  // const jobList: JobType[] = [];
+  // components.forEach((item) => {
+  // const details = item.querySelectorAll(".sMzDkb");
+  // const job = {
+  // id: item.dataset.encodedDocId || "",
+  // jobTitle: item.querySelector(".KLsYvd")?.innerHTML || "",
+  // logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
+  // companyName: details[0].textContent || "",
+  // location: details[1].textContent || "",
+  // extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
+  // (e) => e.textContent || ""
+  // ),
+  // };
 
-    jobList.push(job);
-  });
+  // jobList.push(job);
+  // });
 
-  return jobList;
+  return [job];
 }
 
 type JobType = {
