@@ -14,6 +14,10 @@ export async function scrapeInfiniteScrollItems<T>(
     let numberOfTrials = 0;
 
     while (items.length < itemCount && numberOfTrials < 2) {
+      if ((await page.title()).includes("Before you continue")) {
+        page.$eval("#L2AGLb > div", (button) => button.click());
+      }
+
       items = await page.evaluate(extractItems);
 
       previousHeight = await page.evaluate(`${scrollElement}.scrollHeight`);
