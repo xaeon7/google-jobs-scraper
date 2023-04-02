@@ -4,11 +4,11 @@
 
 This is an API for scraping job postings from Google Jobs. Currently, the API has one endpoint:
 
-`/api/v1/jobs`
+`/api/v1/jobs/list`
 
 ## Endpoint
 
-### GET `/api/v1/jobs`
+### GET `/api/v1/jobs/list`
 
 This endpoint accepts three query parameters:
 
