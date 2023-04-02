@@ -16,7 +16,7 @@ export const getJobsListHandler = async (req: Request, res: Response) => {
     throw new NotFoundError("Job list is not found.");
   }
 
-  return res.status(200).send({ success: true, url, title, data: jobList });
+  return res.status(200).send({ success: true, url, title });
 };
 
 export const getJobsDetailsHandler = async (req: Request, res: Response) => {
