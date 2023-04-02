@@ -50,7 +50,7 @@ export async function getJobList(
   const browser = await puppeteer.launch({
     args: minimal_args,
     // userDataDir: "./.cache/path",
-    // headless: true,
+    headless: true,
     // executablePath:
     //   process.env.NODE_ENV === "production"
     //     ? process.env.PUPPETEER_EXECUTABLE_PATH
@@ -61,7 +61,7 @@ export async function getJobList(
   const url = generateGoogleJobsUrl(searchQuery, location);
 
   await page.setUserAgent(config.get<string>("ua"));
-  await page.goto(url, { waitUntil: "networkidle0" });
+  await page.goto(url, { waitUntil: "networkidle2" });
 
   const title = await page.title();
 
@@ -72,8 +72,10 @@ export async function getJobList(
   //   resultsCount
   // );
 
+  console.log(page);
+
   await browser.close();
-  return [url, title];
+  return [url, title, page];
 }
 
 function extractJobsList() {
