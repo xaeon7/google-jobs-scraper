@@ -61,7 +61,9 @@ export async function getJobList(
   const url = generateGoogleJobsUrl(searchQuery, location);
 
   await page.setUserAgent(config.get<string>("ua"));
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page.goto(url, { waitUntil: "networkidle0" });
+
+  const title = await page.title();
 
   const jobList = await scrapeInfiniteScrollItems(
     page,
@@ -71,7 +73,7 @@ export async function getJobList(
   );
 
   await browser.close();
-  return [jobList, url];
+  return [jobList, url, title];
 }
 
 function extractJobsList() {
