@@ -14,9 +14,15 @@ function uule(city: string) {
 export function generateGoogleJobsUrl(
   searchQuery: string,
   location = "New York, USA",
-  lang = "en5"
+  lang = "en"
 ) {
   searchQuery = searchQuery.replace(/ /g, "+");
   location = uule(location);
   return `https://www.google.com/search?q=${searchQuery}&ibp=htl%3Bjobs&uule=${location}&hl=${lang}&gl=us#htivrt=jobs`;
+}
+
+export function generateGoogleJobDetailsUrl(id: string, lang = "en") {
+  return `https://www.google.com/search?q=google&ibp=htl%3Bjobs&hl=${lang}&gl=us#htivrt=jobs&${encodeURIComponent(
+    id
+  )}=&htidocid=${encodeURIComponent(id)}&fpstate=tldetail`;
 }
