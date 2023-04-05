@@ -3,7 +3,6 @@ import config from "config";
 import { scrapeInfiniteScrollItems } from "../../utils/scrapeInfiniteScrollItems";
 import { generateGoogleJobsUrl } from "../../utils/generateGoogleJobsUrl";
 import { GOOGLE_SELECTORS } from "../../constants";
-import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
 
 const minimal_args = [
   "--autoplay-policy=user-gesture-required",
@@ -60,7 +59,16 @@ export async function getJobList(
   await page.setUserAgent(config.get<string>("ua"));
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  await bypassGooglePrompt(page);
+  const title = await page.title();
+
+  if (title == "Before you continue to Google Search") {
+    await page.$eval(
+      "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button",
+      (button) => button.click()
+    );
+
+    await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+  }
 
   const jobList = await scrapeInfiniteScrollItems(
     page,
