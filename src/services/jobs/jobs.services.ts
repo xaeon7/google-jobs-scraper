@@ -82,7 +82,7 @@ export async function getJobList(
   );
 
   await browser.close();
-  return { jobList, title };
+  return jobList;
 }
 
 function extractJobsList() {
