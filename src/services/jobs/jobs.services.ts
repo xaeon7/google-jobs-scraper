@@ -1,29 +1,78 @@
+import puppeteer from "puppeteer";
+import config from "config";
 import { scrapeInfiniteScrollItems } from "../../utils/scrapeInfiniteScrollItems";
-import {
-  generateGoogleJobDetailsUrl,
-  generateGoogleJobsUrl,
-} from "../../utils/generateGoogleJobsUrl";
+import { generateGoogleJobsUrl } from "../../utils/generateGoogleJobsUrl";
 import { GOOGLE_SELECTORS } from "../../constants";
-import { openBrowser } from "../../utils/openBrowser";
-import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
 
-type JobType = {
-  id: string;
-  jobTitle: string;
-  logo?: string;
-  companyName: string;
-  location: string;
-  extensions: string[];
-};
+const minimal_args = [
+  "--autoplay-policy=user-gesture-required",
+  "--disable-background-networking",
+  "--disable-background-timer-throttling",
+  "--disable-backgrounding-occluded-windows",
+  "--disable-breakpad",
+  "--disable-client-side-phishing-detection",
+  "--disable-component-update",
+  "--disable-default-apps",
+  "--disable-dev-shm-usage",
+  "--disable-domain-reliability",
+  "--disable-extensions",
+  "--disable-features=AudioServiceOutOfProcess",
+  "--disable-hang-monitor",
+  "--disable-ipc-flooding-protection",
+  "--disable-notifications",
+  "--disable-offer-store-unmasked-wallet-cards",
+  "--disable-popup-blocking",
+  "--disable-print-preview",
+  "--disable-prompt-on-repost",
+  "--disable-renderer-backgrounding",
+  "--disable-setuid-sandbox",
+  "--disable-speech-api",
+  "--disable-sync",
+  "--hide-scrollbars",
+  "--ignore-gpu-blacklist",
+  "--metrics-recording-only",
+  "--mute-audio",
+  "--no-default-browser-check",
+  "--no-first-run",
+  "--no-pings",
+  "--no-sandbox",
+  "--no-zygote",
+  "--password-store=basic",
+  "--use-gl=swiftshader",
+  "--use-mock-keychain",
+];
 
-export async function getJobsList(
+export async function getJobList(
   searchQuery: string,
   resultsCount = 10,
   location?: string
 ) {
+  const browser = await puppeteer.launch({
+    args: minimal_args,
+    userDataDir: "./.cache/path",
+    headless: true,
+    // executablePath:
+    //   process.env.NODE_ENV === "production"
+    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
+    //     : puppeteer.executablePath(),
+  });
+
+  const page = await browser.newPage();
   const url = generateGoogleJobsUrl(searchQuery, location);
-  const { browser, page } = await openBrowser(url);
-  bypassGooglePrompt(page);
+
+  await page.setUserAgent(config.get<string>("ua"));
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  const title = await page.title();
+
+  if (title == "Before you continue to Google Search") {
+    await page.$eval(
+      "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.VtwTSb > form:nth-child(2) > div > div > button",
+      (button) => button.click()
+    );
+
+    await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+  }
 
   const jobList = await scrapeInfiniteScrollItems(
     page,
@@ -33,7 +82,7 @@ export async function getJobsList(
   );
 
   await browser.close();
-  return { jobList, url };
+  return jobList;
 }
 
 function extractJobsList() {
@@ -43,13 +92,13 @@ function extractJobsList() {
   components.forEach((item) => {
     const details = item.querySelectorAll(".sMzDkb");
     const job = {
-      id: item.dataset.encodedDocId,
-      jobTitle: item.querySelector(".KLsYvd")?.innerHTML,
+      id: item.dataset.encodedDocId || "",
+      jobTitle: item.querySelector(".KLsYvd")?.innerHTML || "",
       logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
-      companyName: details[0].textContent,
-      location: details[1].textContent,
+      companyName: details[0].textContent || "",
+      location: details[1].textContent || "",
       extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
-        (e) => e.textContent
+        (e) => e.textContent || ""
       ),
     };
 
@@ -59,68 +108,11 @@ function extractJobsList() {
   return jobList;
 }
 
-export async function getJobDetails(id: string) {
-  const url = generateGoogleJobDetailsUrl(id);
-  const { browser, page } = await openBrowser(url, "networkidle2");
-  bypassGooglePrompt(page);
-
-  const jobDetails = await page.evaluate(
-    (id, GOOGLE_SELECTORS) => {
-      const item = document.querySelector<HTMLElement>(
-        `[data-encoded-doc-id="${id}"]`
-      );
-      const details = item.querySelectorAll(GOOGLE_SELECTORS.detailsContainer);
-      const platform = item.querySelector(
-        GOOGLE_SELECTORS.applyPlatformContainer
-      );
-      const jobHighlights = item.querySelectorAll(
-        GOOGLE_SELECTORS.jobHighlightsContainer
-      );
-
-      const jobDetails = {
-        id: item.dataset.encodedDocId,
-        jobTitle: item.querySelector(GOOGLE_SELECTORS.jobTitle)?.textContent,
-        logo: item.querySelector(GOOGLE_SELECTORS.logo)?.querySelector("img")
-          ?.src,
-        companyName: details[0]?.textContent,
-        location: details[1]?.textContent,
-        platform: {
-          name: platform?.querySelector(GOOGLE_SELECTORS.applyPlatformName)
-            ?.textContent,
-          href: platform?.querySelector("a")?.href,
-        },
-        extensions: Array.from(
-          item.querySelectorAll(GOOGLE_SELECTORS.extensions)
-        ).map((e: Element) => e?.textContent),
-        description: item.querySelector(GOOGLE_SELECTORS.description)
-          ?.textContent,
-        jobHighlights: {
-          qualifications:
-            jobHighlights.length > 0
-              ? Array.from(
-                  jobHighlights[0].querySelectorAll(
-                    GOOGLE_SELECTORS.jobHighlights
-                  )
-                ).map((e: Element) => e?.textContent)
-              : [],
-          responsibilities:
-            jobHighlights.length > 1
-              ? Array.from(
-                  jobHighlights[1].querySelectorAll(
-                    GOOGLE_SELECTORS.jobHighlights
-                  )
-                ).map((e: Element) => e?.textContent)
-              : [],
-        },
-      };
-
-      return jobDetails;
-    },
-    id,
-    GOOGLE_SELECTORS
-  );
-
-  await browser.close();
-
-  return { jobDetails, url };
-}
+type JobType = {
+  id: string;
+  jobTitle: string;
+  logo?: string;
+  companyName: string;
+  location: string;
+  extensions: string[];
+};
