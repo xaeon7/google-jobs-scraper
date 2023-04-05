@@ -52,10 +52,6 @@ export async function getJobList(
     args: minimal_args,
     userDataDir: "./.cache/path",
     headless: true,
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
   });
 
   const page = await browser.newPage();
@@ -64,7 +60,7 @@ export async function getJobList(
   await page.setUserAgent(config.get<string>("ua"));
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  bypassGooglePrompt(page);
+  await bypassGooglePrompt(page);
 
   const jobList = await scrapeInfiniteScrollItems(
     page,
