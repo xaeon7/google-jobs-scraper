@@ -4,6 +4,7 @@ import { scrapeInfiniteScrollItems } from "../../utils/scrapeInfiniteScrollItems
 import { generateGoogleJobsUrl } from "../../utils/generateGoogleJobsUrl";
 import { GOOGLE_SELECTORS } from "../../constants";
 import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
+import { openBrowser } from "../../utils/openBrowser";
 
 const minimal_args = [
   "--autoplay-policy=user-gesture-required",
@@ -48,21 +49,8 @@ export async function getJobList(
   resultsCount = 10,
   location?: string
 ) {
-  const browser = await puppeteer.launch({
-    args: minimal_args,
-    userDataDir: "./.cache/path",
-    headless: true,
-    // executablePath:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.PUPPETEER_EXECUTABLE_PATH
-    //     : puppeteer.executablePath(),
-  });
-
-  const page = await browser.newPage();
   const url = generateGoogleJobsUrl(searchQuery, location);
-
-  await page.setUserAgent(config.get<string>("ua"));
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const { browser, page } = await openBrowser(url);
 
   const title = await page.title();
 
