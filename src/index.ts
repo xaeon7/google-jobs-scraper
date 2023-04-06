@@ -4,7 +4,6 @@ dotenv.config();
 import config from "config";
 import { mainRouter } from "./routes";
 import log from "./utils/logger";
-import { connectToRedis } from "./db/connectToRedis";
 import { createClient } from "redis";
 
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
