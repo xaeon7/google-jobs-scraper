@@ -32,6 +32,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          dockerfile: docker-compose.yml
+          
   update_ssh_linode:
     name: Trigger Linode Server Update
     needs: "push_to_registry"
