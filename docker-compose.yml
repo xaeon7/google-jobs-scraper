@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   web:
-    image: express-app
+    image: aalaedev/express-app
     build:
       context: .
       dockerfile: ./Dockerfile

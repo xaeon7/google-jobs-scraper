@@ -24,9 +24,6 @@ jobs:
           docker-compose build
           docker-compose push
 
-      - name: Clean up Docker images
-        run: docker image prune -f
-
   update_ssh_linode:
     name: Trigger Linode Server Update
     needs: "push_to_registry"
