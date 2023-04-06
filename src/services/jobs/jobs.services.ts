@@ -5,6 +5,7 @@ import { generateGoogleJobsUrl } from "../../utils/generateGoogleJobsUrl";
 import { GOOGLE_SELECTORS } from "../../constants";
 import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
 import { openBrowser } from "../../utils/openBrowser";
+import { redisClient } from "../..";
 
 const minimal_args = [
   "--autoplay-policy=user-gesture-required",
@@ -64,7 +65,8 @@ export async function getJobList(
   );
 
   await browser.close();
-  return { title, jobList };
+  redisClient.setEx(searchQuery, 3600, JSON.stringify(jobList));
+  return jobList;
 }
 
 function extractJobsList() {
