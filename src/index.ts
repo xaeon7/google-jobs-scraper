@@ -7,7 +7,9 @@ import log from "./utils/logger";
 import { connectToRedis } from "./db/connectToRedis";
 import { createClient } from "redis";
 
-export const redisClient = createClient({ url: "redis://localhost:6379" });
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+
+export const redisClient = createClient({ url: redisUrl });
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
 redisClient.on("connect", () => log.info("Redis connected"));
 
