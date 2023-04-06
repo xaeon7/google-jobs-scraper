@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   web:
-    image: aalaedev/express-app:main
+    image: express-app
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -13,7 +13,7 @@ services:
       - 80:5000
 
   redis:
-    image: aalaedev/redis:main
+    image: redis
     environment:
       # ALLOW_EMPTY_PASSWORD is recommended only for development.
       - ALLOW_EMPTY_PASSWORD=yes
