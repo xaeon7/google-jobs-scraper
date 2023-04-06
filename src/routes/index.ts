@@ -5,7 +5,7 @@ const router = express.Router();
 
 //? GET
 router.get("/status", async (_, res) => {
-  res.send("Server up and running 👌");
+  res.send("Server up and running 👋!");
 });
 
 router.use("/jobs", jobsRouter);
