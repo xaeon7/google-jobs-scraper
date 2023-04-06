@@ -12,13 +12,13 @@ RUN  apt-get update \
      && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
      && chmod +x /usr/sbin/wait-for-it.sh
 
-COPY package*.json .
+COPY package*.json ./
 
 RUN npm install
 
 EXPOSE 5000
 
-COPY tsconfig.json .
+COPY tsconfig.json ./
 
 COPY . .
 
