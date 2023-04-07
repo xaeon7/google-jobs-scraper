@@ -51,9 +51,7 @@ export async function getJobList(
   location?: string
 ) {
   const url = generateGoogleJobsUrl(searchQuery, location);
-  const { browser, page } = await openBrowser(url);
-
-  const title = await page.title();
+  const { browser, page } = await openBrowser(url, "networkidle0");
 
   await bypassGooglePrompt(page);
 
