@@ -51,7 +51,7 @@ export async function getJobList(
   location?: string
 ) {
   const url = generateGoogleJobsUrl(searchQuery, location);
-  const { browser, page } = await openBrowser(url, "networkidle0");
+  const { browser, page } = await openBrowser(url);
 
   await bypassGooglePrompt(page);
 
@@ -75,12 +75,12 @@ function extractJobsList() {
     const details = item.querySelectorAll(".sMzDkb");
     const job = {
       id: item.dataset.encodedDocId || "",
-      jobTitle: item.querySelector(".KLsYvd")?.innerHTML || "",
+      jobTitle: item.querySelector(".KLsYvd")?.textContent || "",
       logo: item.querySelector(".ZUeoqc")?.querySelector("img")?.src,
-      companyName: details[0].textContent || "",
-      location: details[1].textContent || "",
+      companyName: details[0]?.textContent || "",
+      location: details[1]?.textContent || "",
       extensions: Array.from(item.querySelectorAll(".LL4CDc")).map(
-        (e) => e.textContent || ""
+        (e) => e?.textContent || ""
       ),
     };
 

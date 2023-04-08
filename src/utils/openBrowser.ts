@@ -43,7 +43,7 @@ export async function openBrowser(
   url?: string,
   waitUntil:
     | PuppeteerLifeCycleEvent
-    | PuppeteerLifeCycleEvent[] = "domcontentloaded"
+    | PuppeteerLifeCycleEvent[] = "networkidle0"
 ) {
   const browser = await puppeteer.launch({
     args: minimal_args,
