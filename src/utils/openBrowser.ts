@@ -48,7 +48,7 @@ export async function openBrowser(
   const browser = await puppeteer.launch({
     args: minimal_args,
     userDataDir: "./.cache/path",
-    headless: false,
+    headless: true,
   });
 
   const page = await browser.newPage();
