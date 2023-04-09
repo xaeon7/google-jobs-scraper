@@ -7,12 +7,12 @@ import { redisClient } from "../..";
 export const getJobsListHandler = async (req: Request, res: Response) => {
   const { searchQuery, location, resultsCount } = req.body;
 
-  // const cachedData = await redisClient.get(searchQuery);
+  const cachedData = await redisClient.get(searchQuery);
 
-  // if (cachedData !== null)
-  //   return res
-  //     .status(200)
-  //     .send({ success: true, data: JSON.parse(cachedData) });
+  if (cachedData !== null)
+    return res
+      .status(200)
+      .send({ success: true, data: JSON.parse(cachedData) });
 
   const jobList = await getJobList(searchQuery, resultsCount, location);
 
