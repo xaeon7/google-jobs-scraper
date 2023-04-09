@@ -51,7 +51,7 @@ export async function getJobList(
   location?: string
 ) {
   const url = generateGoogleJobsUrl(searchQuery, location);
-  const { browser, page } = await openBrowser(url);
+  const { browser, page } = await openBrowser(url, "domcontentloaded");
 
   await bypassGooglePrompt(page);
 
@@ -63,7 +63,11 @@ export async function getJobList(
   );
 
   await browser.close();
-  redisClient.setEx(searchQuery, 3600, JSON.stringify(jobList));
+  redisClient.setEx(
+    `${searchQuery}_${resultsCount}`,
+    3600,
+    JSON.stringify(jobList)
+  );
   return jobList;
 }
 
