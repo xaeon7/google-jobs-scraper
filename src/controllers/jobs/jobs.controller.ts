@@ -10,7 +10,7 @@ export const getJobsListHandler = async (req: Request, res: Response) => {
   // TODO: if resultsCount < CachedResults return from cache
   const cachedData = await redisClient.get(`${searchQuery}`);
 
-  if (cachedData !== null && cachedData.count >= resultsCount)
+  if (cachedData !== null && JSON.parse(cachedData).count >= resultsCount)
     return res
       .status(200)
       .send({ success: true, data: JSON.parse(cachedData) });
