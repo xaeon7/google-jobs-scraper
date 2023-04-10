@@ -7,44 +7,6 @@ import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
 import { openBrowser } from "../../utils/openBrowser";
 import { redisClient } from "../..";
 
-const minimal_args = [
-  "--autoplay-policy=user-gesture-required",
-  "--disable-background-networking",
-  "--disable-background-timer-throttling",
-  "--disable-backgrounding-occluded-windows",
-  "--disable-breakpad",
-  "--disable-client-side-phishing-detection",
-  "--disable-component-update",
-  "--disable-default-apps",
-  "--disable-dev-shm-usage",
-  "--disable-domain-reliability",
-  "--disable-extensions",
-  "--disable-features=AudioServiceOutOfProcess",
-  "--disable-hang-monitor",
-  "--disable-ipc-flooding-protection",
-  "--disable-notifications",
-  "--disable-offer-store-unmasked-wallet-cards",
-  "--disable-popup-blocking",
-  "--disable-print-preview",
-  "--disable-prompt-on-repost",
-  "--disable-renderer-backgrounding",
-  "--disable-setuid-sandbox",
-  "--disable-speech-api",
-  "--disable-sync",
-  "--hide-scrollbars",
-  "--ignore-gpu-blacklist",
-  "--metrics-recording-only",
-  "--mute-audio",
-  "--no-default-browser-check",
-  "--no-first-run",
-  "--no-pings",
-  "--no-sandbox",
-  "--no-zygote",
-  "--password-store=basic",
-  "--use-gl=swiftshader",
-  "--use-mock-keychain",
-];
-
 export async function getJobList(
   searchQuery: string,
   resultsCount = 10,
@@ -102,3 +64,69 @@ type JobType = {
   location: string;
   extensions: string[];
 };
+
+export async function getJobDetails(id: string) {
+  const url = generateGoogleJobDetailsUrl(id);
+  const { browser, page } = await openBrowser(url, "networkidle2");
+  bypassGooglePrompt(page);
+
+  const jobDetails = await page.evaluate(
+    (id, GOOGLE_SELECTORS) => {
+      const item = document.querySelector<HTMLElement>(
+        `[data-encoded-doc-id="${id}"]`
+      );
+      const details = item.querySelectorAll(GOOGLE_SELECTORS.detailsContainer);
+      const platform = item.querySelector(
+        GOOGLE_SELECTORS.applyPlatformContainer
+      );
+      const jobHighlights = item.querySelectorAll(
+        GOOGLE_SELECTORS.jobHighlightsContainer
+      );
+
+      const jobDetails = {
+        id: item.dataset.encodedDocId,
+        jobTitle: item.querySelector(GOOGLE_SELECTORS.jobTitle)?.textContent,
+        logo: item.querySelector(GOOGLE_SELECTORS.logo)?.querySelector("img")
+          ?.src,
+        companyName: details[0]?.textContent,
+        location: details[1]?.textContent,
+        platform: {
+          name: platform?.querySelector(GOOGLE_SELECTORS.applyPlatformName)
+            ?.textContent,
+          href: platform?.querySelector("a")?.href,
+        },
+        extensions: Array.from(
+          item.querySelectorAll(GOOGLE_SELECTORS.extensions)
+        ).map((e: Element) => e?.textContent),
+        description: item.querySelector(GOOGLE_SELECTORS.description)
+          ?.textContent,
+        jobHighlights: {
+          qualifications:
+            jobHighlights.length > 0
+              ? Array.from(
+                  jobHighlights[0].querySelectorAll(
+                    GOOGLE_SELECTORS.jobHighlights
+                  )
+                ).map((e: Element) => e?.textContent)
+              : [],
+          responsibilities:
+            jobHighlights.length > 1
+              ? Array.from(
+                  jobHighlights[1].querySelectorAll(
+                    GOOGLE_SELECTORS.jobHighlights
+                  )
+                ).map((e: Element) => e?.textContent)
+              : [],
+        },
+      };
+
+      return jobDetails;
+    },
+    id,
+    GOOGLE_SELECTORS
+  );
+
+  await browser.close();
+
+  return { jobDetails, url };
+}

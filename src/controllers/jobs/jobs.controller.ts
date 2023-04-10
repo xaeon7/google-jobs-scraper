@@ -1,7 +1,7 @@
 import { NotFoundError } from "./../../errors/not-found-error";
 import { Request, Response } from "express";
 import { BadRequestError } from "../../errors/bad-request-error";
-import { getJobList } from "../../services/jobs/jobs.services";
+import { getJobList, getJobDetails } from "../../services/jobs/jobs.services";
 import { redisClient } from "../..";
 
 export const getJobsListHandler = async (req: Request, res: Response) => {
@@ -29,9 +29,11 @@ export const getJobsListHandler = async (req: Request, res: Response) => {
 export const getJobsDetailsHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  if (!id) {
-    return;
+  const { jobDetails, url } = await getJobDetails(id);
+
+  if (!jobDetails) {
+    throw new NotFoundError("Job details are not found.");
   }
 
-  return res.status(200).send(id);
+  return res.status(200).send({ success: true, url, data: jobDetails });
 };
