@@ -7,6 +7,7 @@ import { redisClient } from "../..";
 export const getJobsListHandler = async (req: Request, res: Response) => {
   const { searchQuery, location, resultsCount } = req.body;
 
+  // TODO: if resultsCount < CachedResults return from cache
   const cachedData = await redisClient.get(`${searchQuery}_${resultsCount}`);
 
   if (cachedData !== null)
