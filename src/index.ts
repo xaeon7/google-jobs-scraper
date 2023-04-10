@@ -6,6 +6,7 @@ import { mainRouter } from "./routes";
 import log from "./utils/logger";
 import { createClient } from "redis";
 import cors from "cors";
+import morgan from "morgan";
 
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -20,6 +21,8 @@ redisClient.on("connect", () => log.info("Redis connected"));
 const app = express();
 
 app.use(cors());
+app.use(morgan("tiny"));
+
 const PORT = config.get<number>("port");
 
 app.use(express.json());
