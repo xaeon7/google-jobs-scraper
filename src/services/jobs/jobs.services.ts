@@ -1,7 +1,10 @@
 import puppeteer from "puppeteer";
 import config from "config";
 import { scrapeInfiniteScrollItems } from "../../utils/scrapeInfiniteScrollItems";
-import { generateGoogleJobsUrl } from "../../utils/generateGoogleJobsUrl";
+import {
+  generateGoogleJobsUrl,
+  generateGoogleJobDetailsUrl,
+} from "../../utils/generateGoogleJobsUrl";
 import { GOOGLE_SELECTORS } from "../../constants";
 import { bypassGooglePrompt } from "../../utils/bypassGooglePrompt";
 import { openBrowser } from "../../utils/openBrowser";

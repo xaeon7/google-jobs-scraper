@@ -20,3 +20,9 @@ export function generateGoogleJobsUrl(
   location = uule(location);
   return `https://www.google.com/search?q=${searchQuery}&ibp=htl%3Bjobs&uule=${location}&hl=${lang}&gl=us#htivrt=jobs`;
 }
+
+export function generateGoogleJobDetailsUrl(id: string, lang = "en") {
+  return `https://www.google.com/search?q=google&ibp=htl%3Bjobs&hl=${lang}&gl=us#htivrt=jobs&${encodeURIComponent(
+    id
+  )}=&htidocid=${encodeURIComponent(id)}&fpstate=tldetail`;
+}
