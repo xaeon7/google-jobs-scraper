@@ -8,9 +8,9 @@ export const getJobsListHandler = async (req: Request, res: Response) => {
   const { searchQuery, location, resultsCount } = req.body;
 
   // TODO: if resultsCount < CachedResults return from cache
-  const cachedData = await redisClient.get(`${searchQuery}_${resultsCount}`);
+  const cachedData = await redisClient.get(`${searchQuery}`);
 
-  if (cachedData !== null)
+  if (cachedData !== null && cachedData.count >= resultsCount)
     return res
       .status(200)
       .send({ success: true, data: JSON.parse(cachedData) });
@@ -30,6 +30,13 @@ export const getJobsDetailsHandler = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const { jobDetails, url } = await getJobDetails(id);
+
+  const cachedData = await redisClient.get(`${id}`);
+
+  if (cachedData !== null)
+    return res
+      .status(200)
+      .send({ success: true, data: JSON.parse(cachedData) });
 
   if (!jobDetails) {
     throw new NotFoundError("Job details are not found.");

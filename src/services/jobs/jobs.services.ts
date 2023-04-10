@@ -29,9 +29,9 @@ export async function getJobList(
 
   await browser.close();
   redisClient.setEx(
-    `${searchQuery}_${resultsCount}`,
+    `${searchQuery}`,
     3600,
-    JSON.stringify(jobList)
+    JSON.stringify({ count: jobList.length, jobList })
   );
   return jobList;
 }
@@ -130,6 +130,6 @@ export async function getJobDetails(id: string) {
   );
 
   await browser.close();
-
+  redisClient.setEx(`${id}`, 3600, JSON.stringify({ jobDetails, url }));
   return { jobDetails, url };
 }
