@@ -27,9 +27,9 @@ export async function getJobList(
 
   await browser.close();
   redisClient.setEx(
-    `${searchQuery.toLowerCase()}`,
+    `${searchQuery.toLowerCase().replace(" ", "")}`,
     3600,
-    JSON.stringify({ count: jobList.length, jobList })
+    JSON.stringify({ jobList })
   );
   return jobList;
 }

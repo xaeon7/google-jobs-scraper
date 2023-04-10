@@ -6,12 +6,20 @@ import { redisClient } from "../..";
 export const getJobsListHandler = async (req: Request, res: Response) => {
   const { searchQuery, location, resultsCount } = req.body;
 
-  const cachedData = await redisClient.get(`${searchQuery.toLowerCase()}`);
+  const cachedData = await redisClient.get(
+    `${searchQuery.toLowerCase().replace(" ", "")}`
+  );
 
-  if (cachedData !== null || JSON.parse(cachedData).count >= resultsCount) {
-    return res
-      .status(200)
-      .send({ success: true, data: JSON.parse(cachedData) });
+  if (
+    cachedData !== null &&
+    JSON.parse(cachedData)?.jobList?.length >= resultsCount
+  ) {
+    const data = JSON.parse(cachedData)?.jobList.slice(0, resultsCount);
+    return res.status(200).send({
+      success: true,
+      count: data.length,
+      data,
+    });
   }
 
   const jobList = await getJobList(searchQuery, resultsCount, location);
