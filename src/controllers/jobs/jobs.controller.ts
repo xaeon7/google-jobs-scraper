@@ -1,19 +1,18 @@
 import { NotFoundError } from "./../../errors/not-found-error";
 import { Request, Response } from "express";
-import { BadRequestError } from "../../errors/bad-request-error";
 import { getJobList, getJobDetails } from "../../services/jobs/jobs.services";
 import { redisClient } from "../..";
 
 export const getJobsListHandler = async (req: Request, res: Response) => {
   const { searchQuery, location, resultsCount } = req.body;
 
-  // TODO: if resultsCount < CachedResults return from cache
-  const cachedData = await redisClient.get(`${searchQuery}`);
+  const cachedData = await redisClient.get(`${searchQuery.toLowerCase()}`);
 
-  if (cachedData !== null && JSON.parse(cachedData).count >= resultsCount)
+  if (cachedData !== null || JSON.parse(cachedData).count >= resultsCount) {
     return res
       .status(200)
       .send({ success: true, data: JSON.parse(cachedData) });
+  }
 
   const jobList = await getJobList(searchQuery, resultsCount, location);
 
@@ -33,10 +32,11 @@ export const getJobsDetailsHandler = async (req: Request, res: Response) => {
 
   const cachedData = await redisClient.get(`${id}`);
 
-  if (cachedData !== null)
+  if (cachedData !== null) {
     return res
       .status(200)
       .send({ success: true, data: JSON.parse(cachedData) });
+  }
 
   if (!jobDetails) {
     throw new NotFoundError("Job details are not found.");

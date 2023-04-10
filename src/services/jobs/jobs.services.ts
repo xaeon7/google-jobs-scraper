@@ -1,5 +1,3 @@
-import puppeteer from "puppeteer";
-import config from "config";
 import { scrapeInfiniteScrollItems } from "../../utils/scrapeInfiniteScrollItems";
 import {
   generateGoogleJobsUrl,
@@ -29,7 +27,7 @@ export async function getJobList(
 
   await browser.close();
   redisClient.setEx(
-    `${searchQuery}`,
+    `${searchQuery.toLowerCase()}`,
     3600,
     JSON.stringify({ count: jobList.length, jobList })
   );
